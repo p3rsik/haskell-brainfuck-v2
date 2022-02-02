@@ -28,7 +28,7 @@ library
       Data
       Interpreter
       Language
-      Lib
+      Parse
       Syntax
   other-modules:
       Paths_brainfuck_haskell_v2
@@ -66,6 +66,8 @@ test-suite brainfuck-haskell-v2-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      ParseSpec
+      SyntaxSpec
       Paths_brainfuck_haskell_v2
   hs-source-dirs:
       test

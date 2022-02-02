@@ -9,8 +9,9 @@ module Language
 where
 
 import           Control.Monad.Free.Church
-import           Data                      (Code, SyntaxError)
+import           Data                      (Code)
 import           Relude
+import           Syntax                    (SyntaxError)
 
 data CommandL next where
   MoveL :: Int -> (() -> next) -> CommandL next
