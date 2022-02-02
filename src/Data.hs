@@ -2,7 +2,6 @@ module Data
   ( Command (..)
   , Code (..)
   , Memory (..)
-  , SyntaxError (..)
   , emptyMemoryWord8
   )
 where
@@ -23,11 +22,11 @@ data Command = MoveCell Int -- > or <
 type Code = [Command]
 
 -- Memory cells of our brainfuck interpreter represented as an isInfinite tape.
-data Memory a = Memory { left, right :: [a], current :: !a } deriving (Show)
+data Memory a = Memory { left, right :: NonEmpty a, current :: !a } deriving (Show)
 
+-- Initial memory for Word8 memory cell type
 emptyMemoryWord8 :: Memory Word8
 emptyMemoryWord8 = Memory { left = zeroes, current = 0, right = zeroes}
   where
-    zeroes = 0 : zeroes
-
-data SyntaxError = NotMatchingBrackets deriving (Show, Eq)
+    zeroes' = 0 : zeroes'
+    zeroes = 0 :| zeroes'

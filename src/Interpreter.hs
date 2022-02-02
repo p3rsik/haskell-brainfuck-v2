@@ -1,13 +1,18 @@
 module Interpreter
-  ()
+  ( runInterpreter
+  , runCommand
+  )
 where
 
 import           Control.Monad.Free.Church
 import           Language
 import           Relude
 
-interpretCommandL :: CommandL a next -> IO next
+interpretCommandL :: CommandL a -> IO a
 interpretCommandL = undefined
+
+runCommand :: Command a -> IO a
+runCommand = foldF interpretCommandL
 
 interpretInterpreterL :: InterpreterL a -> IO a
 interpretInterpreterL (CheckSyntax code next) = do

@@ -12,28 +12,30 @@ import           Control.Monad.Free.Church
 import           Data                      (Code, SyntaxError)
 import           Relude
 
-data CommandL a next where
-  MoveL :: Int -> (() -> next) -> CommandL a next
-  ChangeL :: Int -> (() -> next) -> CommandL a next
-  PrintL :: (a -> next) -> CommandL a next
-  WriteL :: (() -> next) -> CommandL a next
-  LoopL :: (() -> next) -> CommandL a next
+data CommandL next where
+  MoveL :: Int -> (() -> next) -> CommandL next
+  ChangeL :: Int -> (() -> next) -> CommandL next
+  PrintL :: Show a => (a -> next) -> CommandL next
+  WriteL :: (() -> next) -> CommandL next
+  LoopL :: (() -> next) -> CommandL next
 
-instance Functor (CommandL a) where
+instance Functor CommandL where
   fmap f (MoveL i next)   = MoveL i $ f . next
   fmap f (ChangeL i next) = ChangeL i $ f . next
   fmap f (PrintL next)    = PrintL $ f . next
   fmap f (WriteL next)    =  WriteL $ f . next
   fmap f (LoopL next)     = LoopL $ f . next
 
-type Command memType a = F (CommandL memType) a
+type Command a = F CommandL a
 
 data InterpreterL next where
-  CheckSyntax :: Code -> (Either SyntaxError Code -> next) -> InterpreterL next
-  EvalCommand :: Command memType () -> (() -> next) -> InterpreterL next
+  CheckSyntaxL :: Text -> (Either SyntaxError Text -> next) -> InterpreterL next
+  ParseL :: Text -> (Code -> next) -> InterpreterL next
+  EvalCommandL :: Command () -> (() -> next) -> InterpreterL next
 
 instance Functor InterpreterL where
-  fmap f (CheckSyntax code next)    = CheckSyntax code $ f . next
-  fmap f (EvalCommand command next) = EvalCommand command $ f . next
+  fmap f (CheckSyntaxL code next)    = CheckSyntaxL code $ f . next
+  fmap f (ParseL text next)          = ParseL text $ f . next
+  fmap f (EvalCommandL command next) = EvalCommandL command $ f . next
 
 type Interpreter a = F InterpreterL a
