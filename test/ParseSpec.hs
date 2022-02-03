@@ -6,8 +6,8 @@ where
 import           Relude
 import           Test.Hspec
 
-import           Data       (Command (..))
-import           Parse
+import           Interpreter.Data  (Code (..), Command (..))
+import           Interpreter.Parse
 
 spec :: Spec
 spec =
@@ -17,9 +17,9 @@ spec =
                       , "[]"
                       , "[+]->+<,."
                       ]
-          results = [ []
-                    , [LoopL, LoopR]
-                    , [LoopL, ChangeCell 1, LoopR, ChangeCell (-1), MoveCell 1, ChangeCell 1, MoveCell (-1), WriteCell, PrintCell]
+          results = [ Code [] [] End
+                    , Code [LoopR, End] [] LoopL
+                    , Code [ChangeCell 1, LoopR, ChangeCell (-1), MoveCell 1, ChangeCell 1, MoveCell (-1), WriteCell, PrintCell, End] [] LoopL
                     ]
       parse <$> testCases `shouldBe` results
 

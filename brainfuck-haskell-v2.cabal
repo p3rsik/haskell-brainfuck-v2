@@ -25,11 +25,12 @@ source-repository head
 
 library
   exposed-modules:
-      Data
       Interpreter
-      Language
-      Parse
-      Syntax
+      Interpreter.Data
+      Interpreter.Language
+      Interpreter.Parse
+      Interpreter.Run
+      Interpreter.Syntax
   other-modules:
       Paths_brainfuck_haskell_v2
   hs-source-dirs:
@@ -37,8 +38,16 @@ library
   default-extensions:
       NoImplicitPrelude
       OverloadedStrings
+      LambdaCase
+      RankNTypes
+      DeriveGeneric
+      DeriveAnyClass
+      GADTs
+      StandaloneDeriving
+      RecordWildCards
   build-depends:
       base >=4.7 && <5
+    , directory
     , free
     , relude
     , text
@@ -53,10 +62,18 @@ executable brainfuck-haskell-v2-exe
   default-extensions:
       NoImplicitPrelude
       OverloadedStrings
+      LambdaCase
+      RankNTypes
+      DeriveGeneric
+      DeriveAnyClass
+      GADTs
+      StandaloneDeriving
+      RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , brainfuck-haskell-v2
+    , directory
     , free
     , relude
     , text
@@ -74,10 +91,18 @@ test-suite brainfuck-haskell-v2-test
   default-extensions:
       NoImplicitPrelude
       OverloadedStrings
+      LambdaCase
+      RankNTypes
+      DeriveGeneric
+      DeriveAnyClass
+      GADTs
+      StandaloneDeriving
+      RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , brainfuck-haskell-v2
+    , directory
     , free
     , hspec
     , relude

@@ -6,7 +6,7 @@ where
 import           Relude
 import           Test.Hspec
 
-import           Syntax     (SyntaxError (..), checkSyntax)
+import           Interpreter.Syntax (SyntaxError (..), checkSyntax)
 
 spec :: Spec
 spec =

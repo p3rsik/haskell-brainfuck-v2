@@ -24,10 +24,18 @@ dependencies:
 - relude
 - free
 - text
+- directory
 
 default-extensions:
   - NoImplicitPrelude
   - OverloadedStrings
+  - LambdaCase
+  - RankNTypes
+  - DeriveGeneric
+  - DeriveAnyClass
+  - GADTs
+  - StandaloneDeriving
+  - RecordWildCards
 
 library:
   source-dirs: src
