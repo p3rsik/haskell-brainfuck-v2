@@ -69,3 +69,4 @@ tests:
     dependencies:
     - brainfuck-haskell-v2
     - hspec
+    - QuickCheck
