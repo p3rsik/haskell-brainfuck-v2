@@ -4,6 +4,7 @@ module Interpreter.Run
   , change
   , writeCell
   , Interrupt
+  , execProgram
   )
 where
 
@@ -25,8 +26,8 @@ move n s@(getMemory -> mem) = flip setMemory s $ move' n mem
       else move' (i - 1) $ Memory (unsafeTail left) (current:right) (unsafeHead left)
 change i s@(getMemory -> Memory {..}) = flip setMemory s $ Memory left right (current + fromIntegral i)
 
-printCell :: Memory a -> a
-printCell Memory {..} = current
+printCell :: ProgramState a -> a
+printCell (getMemory -> Memory {..}) = current
 
 writeCell :: (Num a, Show a, Ord a) => a -> ProgramState a -> ProgramState a
 writeCell a ps = flip setMemory ps $ let Memory {..} = getMemory ps in Memory {current = a, ..}
@@ -39,16 +40,26 @@ run :: (Num a, Ord a, Eq a) => ProgramState a
   -> Interrupt r a -- ^ Print interrupt
   -> Interrupt r a -- ^ Write interrupt
   -> Cont r (ProgramState a)
-run ps printC writeC = let code = getCode ps in
+run ps printI writeI = let code = getCode ps in
   case currentInstruction $ getCode ps of
     MoveCell n   -> return . setCode (shiftRCode code) $ move (fromIntegral n) ps
     ChangeCell n -> return . setCode (shiftRCode code) $ change (fromIntegral n) ps
     PrintCell    -> do
-      ps' <- callCC $ \ret -> printC ps ret
+      ps' <- callCC $ \ret -> printI ps ret
       return $ setCode (shiftRCode code) ps'
     WriteCell    -> do
-      ps' <- callCC $ \ret -> writeC ps ret
+      ps' <- callCC $ \ret -> writeI ps ret
       return $ setCode (shiftRCode code) ps'
     LoopL        -> undefined
     LoopR        -> undefined
     End          -> return ps
+
+execProgram :: forall a r. (Num a, Ord a, Eq a, Show a) => Code
+  -> Interrupt (ProgramState a) a -- ^ Print interrupt
+  -> Interrupt (ProgramState a) a -- ^ Write interrupt
+  -> ProgramState a
+execProgram code printI writeI = loop $ ProgramState (emptyMemory, code)
+  where
+    loop :: ProgramState a -> ProgramState a
+    loop ps@(getCode -> Code _ _ End) = ps
+    loop ps = loop . (`runCont` id) $ run ps printI writeI
