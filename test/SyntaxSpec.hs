@@ -25,12 +25,10 @@ spec = describe "Syntax module" $ do
                            , "["
                            , "]"
                            ]
-    modifyMaxSuccess (const $ length testCasesSuccess)
-      . prop "when provided with correct input"
+    prop "when provided with correct input"
       . forAll (elements testCasesSuccess)
       $ \c -> checkSyntax c `shouldBe` Right c
 
-    modifyMaxSuccess (const $ length testCasesFailure)
-      . prop "when provided with incorrect input"
+    prop "when provided with incorrect input"
       . forAll (elements testCasesFailure)
       $ \c -> checkSyntax c `shouldBe` Left NotMatchingBrackets

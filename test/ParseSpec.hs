@@ -21,8 +21,7 @@ spec = describe "Parse module" $ do
                     , ("[+]->+<,."
                       , Code [ChangeCell 1, LoopR, ChangeCell (-1), MoveCell 1, ChangeCell 1, MoveCell (-1), WriteCell, PrintCell, End] [] LoopL)
                     ]
-    modifyMaxSuccess (const $ length testCases)
-      . prop "parses correctly"
+    prop "parses correctly"
       . forAll (elements testCases)
       $ \(testCase, result) -> parse testCase `shouldBe` result
 
