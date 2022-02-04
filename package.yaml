@@ -21,8 +21,10 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- relude
-- free
+- relude # alternative prelude
+- free # free monads
+- mtl # we actually need this only for Cont
+# miscellaneous packages
 - text
 - directory
 
@@ -36,6 +38,11 @@ default-extensions:
   - GADTs
   - StandaloneDeriving
   - RecordWildCards
+  - ConstraintKinds
+  - TypeApplications
+  - ViewPatterns
+  - TupleSections
+  - ScopedTypeVariables
 
 library:
   source-dirs: src
