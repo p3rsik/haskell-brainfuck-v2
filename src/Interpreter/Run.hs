@@ -17,7 +17,9 @@ import           Interpreter.Data
 import           Interpreter.Util
 
 
-move, change :: Int -> ProgramState a -> ProgramState a
+-- Moves current selected memory cell 'Int' cells forward
+-- or backward, depending on the sign
+move :: Int -> ProgramState a -> ProgramState a
 move n s@(getMemory -> mem) = flip setMemory s $ move' n mem
   where
     move' :: Int -> Memory a -> Memory a
@@ -26,9 +28,14 @@ move n s@(getMemory -> mem) = flip setMemory s $ move' n mem
       if i < 0
       then move' (i + 1) $ Memory (current:left) (unsafeTail right) (unsafeHead right)
       else move' (i - 1) $ Memory (unsafeTail left) (current:right) (unsafeHead left)
+
+-- Changes current selected memory cell by 'Int'
+-- e.g. if 'Int' is -2, then 2 will be substructed from current cell
+change :: Int -> ProgramState a -> ProgramState a
 change i s@(getMemory -> Memory {..}) = flip setMemory s $ Memory left right (current + fromIntegral i)
 
-seekLoopL, seekLoopR :: ProgramState a -> ProgramState a
+-- Seeks '[' token in the code and moves current instruction to it
+seekLoopL :: ProgramState a -> ProgramState a
 seekLoopL s@(getCode -> code) = flip setCode s $ seekLoopL' 0 code
   where
     seekLoopL' :: Int -> Code -> Code
@@ -39,6 +46,9 @@ seekLoopL s@(getCode -> code) = flip setCode s $ seekLoopL' 0 code
     seekLoopL' n c@(Code _ _ LoopR) = seekLoopL' (succ n) $ shiftLCode c
     seekLoopL' n c@(Code _ _ LoopL) = seekLoopL' (pred n) $ shiftLCode c
     seekLoopL' n c                  = seekLoopL' n $ shiftLCode c
+
+-- Seeks ']' token in the code and moves current instruction to it
+seekLoopR :: ProgramState a -> ProgramState a
 seekLoopR s@(getCode -> code) = flip setCode s $ seekLoopR' 0 code
   where
     seekLoopR' :: Int -> Code -> Code
@@ -51,13 +61,17 @@ seekLoopR s@(getCode -> code) = flip setCode s $ seekLoopR' 0 code
     seekLoopR' n c                  = seekLoopR' n $ shiftRCode c
 
 
+-- Given 'ProgramState a' return currently selected memory cell as a 'Char'
 printCell :: (Num a, Integral a) => ProgramState a -> Char
 printCell (getMemory -> Memory {..}) = chr $ fromIntegral current
 
+-- Replaces currently selected memory cell in 'ProgramState a' with the given 'Char'
 writeCell :: (Num a, Show a, Ord a) => Char -> ProgramState a -> ProgramState a
 writeCell a ps = flip setMemory ps $ let Memory {..} = getMemory ps in Memory {current = fromIntegral $ ord a, ..}
 
--- step by step interpretation of the program from the given 'ProgramState a'
+-- Atomicly executes one instruction for the given 'ProgramState a'
+-- 'PrintInterrupt r m a' and 'WriteInterrupt r m a' are called for '.' and ',' respectively
+-- to get/return needed input/output
 run :: (Num a, Ord a, Eq a, Show a, Integral a) => ProgramState a
   -> PrintInterrupt r m a
   -> WriteInterrupt r m a
@@ -85,6 +99,7 @@ run ps printI writeI = let code = getCode ps in
     execInstruction :: ProgramState a -> (ProgramState a -> ProgramState a) -> ProgramState a
     execInstruction ps@(getCode -> code) instruction = setCode (shiftRCode code) $ instruction ps
 
+-- Executes whole program for the given 'Code'
 execProgram :: forall a m r. (Num a, Ord a, Eq a, Show a, Monad m, Integral a) => Code
   -> PrintInterrupt (ProgramState a) m a
   -> WriteInterrupt (ProgramState a) m a
@@ -95,6 +110,7 @@ execProgram code printI writeI = loop $ ProgramState (emptyMemory, code)
     loop ps@(getCode -> Code _ _ End) = return ps
     loop ps                           = (`runContT` loop) (run ps printI writeI)
 
+-- Executes whole program step-by-step waiting for user input(e.g. Enter press) after each step
 execProgramDebug :: forall a m r. (Num a, Ord a, Eq a, Show a, Integral a, MonadIO m) => Code
   -> PrintInterrupt (ProgramState a) m a
   -> WriteInterrupt (ProgramState a) m a

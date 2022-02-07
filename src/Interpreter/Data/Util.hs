@@ -32,7 +32,7 @@ shiftLCode c@(Code [] _ _) = c
 shiftLCode Code {..} = Code (currentInstruction:toExec) (unsafeTail executed) (unsafeHead executed)
 
 
--- Initial memory for Word8 memory cell type
+-- Initial empty memory
 emptyMemory :: MemoryConstraint a => Memory a
 emptyMemory = Memory { left = zeroes, current = 0, right = zeroes}
   where
@@ -50,10 +50,13 @@ setMemory mem = ProgramState . (mem,) . snd . getProgramState
 setCode :: Code -> ProgramState a -> ProgramState a
 setCode code = ProgramState . (,code) . fst . getProgramState
 
+-- Default interrupt used for printing
 printInterruptIO :: PrintInterrupt (ProgramState a) IO a
 printInterruptIO ch ret = do
   liftIO $ putChar ch
   ret ()
+
+-- Default interrupt used for writing
 writeInterruptIO :: WriteInterrupt (ProgramState a) IO a
 writeInterruptIO ret = do
   l <- liftIO getChar

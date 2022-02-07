@@ -8,8 +8,7 @@ import           Relude
 
 import           Interpreter.Data (SyntaxError (..))
 
--- The only thing we need to check in brainfuck code
--- is the correct bracket placement
+-- Checks syntax for the given 'Text'
 checkSyntax :: Text -> Either SyntaxError Text
 checkSyntax code =
   bool (Left NotMatchingBrackets) (Right code)

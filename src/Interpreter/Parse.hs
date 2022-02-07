@@ -8,6 +8,9 @@ import           Relude
 import qualified Data.Text        as T
 import           Interpreter.Data (Code (..), Command (..))
 
+-- Parses given 'Text' into a 'Code'
+-- This operation does not check syntax, only converts given 'Text' into a 'Code'
+-- skipping any charactes that aren't valid Brainfuck instructions
 parse :: Text -> Code
 parse = toCode . catMaybes . T.foldr (\el acc -> convert el : acc) []
   where

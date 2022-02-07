@@ -48,20 +48,24 @@ data Command = MoveCell Int -- > or <
              | End -- just the end of the commands
              deriving (Show, Eq)
 
--- This represents the code
+-- Sequence of Brainfuck instruction
 data Code = Code { toExec, executed :: [Command], currentInstruction :: !Command } deriving (Eq, Show)
 
+-- Interpreter wide errors
 data InterpreterError =
   SyntaxError SyntaxError -- Wrapper around 'SyntaxError'
   | FileError Text -- file not found, can't be read, etc
   | UnexpectedError Text
   deriving (Show, Eq, Generic, Exception)
 
+-- Error for 'checkSyntax' function
 data SyntaxError = NotMatchingBrackets deriving (Show, Eq)
 
+-- Interrupt used to print current memory cell
 type PrintInterrupt r m a = Char  -- ^ a Char to print
   -> (() -> ContT r m (ProgramState a)) -- ^ return continuation
   -> ContT r m (ProgramState a)
 
+-- Interrupt used to write into the current memory cell
 type WriteInterrupt r m a = (Char -> ContT r m (ProgramState a)) -- ^ return continuation
   -> ContT r m (ProgramState a)
