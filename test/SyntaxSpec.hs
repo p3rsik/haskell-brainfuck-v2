@@ -8,7 +8,8 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import           Interpreter.Syntax    (SyntaxError (..), checkSyntax)
+import           Interpreter.Data      (SyntaxError (..))
+import           Interpreter.Syntax    (checkSyntax)
 
 spec :: Spec
 spec = describe "Syntax module" $ do

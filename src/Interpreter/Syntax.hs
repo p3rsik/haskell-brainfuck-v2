@@ -1,13 +1,12 @@
 module Interpreter.Syntax
-  ( SyntaxError (..)
-  , checkSyntax
+  ( checkSyntax
   )
 where
 
-import qualified Data.Text as T
+import qualified Data.Text        as T
 import           Relude
 
-data SyntaxError = NotMatchingBrackets deriving (Show, Eq)
+import           Interpreter.Data (SyntaxError (..))
 
 -- The only thing we need to check in brainfuck code
 -- is the correct bracket placement

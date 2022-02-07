@@ -3,10 +3,7 @@ module Main where
 import           Control.Exception (try)
 import           Relude
 
-import           Interpreter       (InterpreterError (..), checkSyntax,
-                                    debugProgram, parse, printGreetings,
-                                    runInterpreter, runProgram, selectProgram,
-                                    throwException)
+import           Interpreter
 
 main :: IO ()
 main = do
@@ -17,7 +14,7 @@ main = do
                                 Right prog -> return prog
     verifiedProg <- checkSyntax prog >>= \case
                                           Left err   -> throwException $ SyntaxError err
-                                          Right prog -> return prog
+                                          Right prog' -> return prog'
     code <- parse verifiedProg
     runProgram code
   case eResult of
