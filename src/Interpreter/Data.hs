@@ -2,6 +2,7 @@ module Interpreter.Data
   ( Command (..)
   , Code (..)
   , shiftRCode
+  , shiftLCode
   , Memory (..)
   , MemoryConstraint
   , emptyMemory
@@ -40,8 +41,15 @@ shiftRCode :: Code -> Code
 shiftRCode c@(Code _ _ End) = c
 shiftRCode Code {..} = Code (unsafeTail toExec) (currentInstruction:executed) (unsafeHead toExec)
 
+-- Shifts code tape by one instruction to the left(e.g. backwards execution)
+-- unsafe versions of head and tail used here because this function is carefully constructed
+-- to work with them
+shiftLCode :: Code -> Code
+shiftLCode c@(Code [] _ _) = c
+shiftLCode Code {..} = Code (currentInstruction:toExec) (unsafeTail executed) (unsafeHead executed)
 
--- Memory cells of our brainfuck interpreter represented as an isInfinite tape.
+
+-- Memory cells represented as an infinite tape.
 data Memory a = MemoryConstraint a => Memory { left, right :: [a], current :: !a }
 
 instance Show (Memory a) where
@@ -64,6 +72,7 @@ emptyMemory = Memory { left = zeroes, current = 0, right = zeroes}
   where
     zeroes = 0 : zeroes
 
+-- Local interpreter state for each program
 newtype ProgramState a = ProgramState { getProgramState :: (Memory a, Code) } deriving (Show, Eq)
 
 getMemory :: ProgramState a -> Memory a

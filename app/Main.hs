@@ -1,19 +1,25 @@
 module Main where
 
+import           Control.Exception (try)
 import           Relude
 
-import           Interpreter (InterpreterError (..), checkSyntax, parse,
-                              printGreetings, runInterpreter, runProgram,
-                              selectProgram, throwException)
+import           Interpreter       (InterpreterError (..), checkSyntax,
+                                    debugProgram, parse, printGreetings,
+                                    runInterpreter, runProgram, selectProgram,
+                                    throwException)
 
 main :: IO ()
-main = runInterpreter $ do
-  printGreetings
-  prog <- selectProgram >>= \case
-                              Left err   -> throwException err
-                              Right prog -> return prog
-  verifiedProg <- checkSyntax prog >>= \case
-                                         Left err   -> throwException $ SyntaxError err
-                                         Right prog -> return prog
-  code <- parse verifiedProg
-  runProgram code
+main = do
+  eResult <- try $ runInterpreter $ do
+    printGreetings
+    prog <- selectProgram >>= \case
+                                Left err   -> throwException err
+                                Right prog -> return prog
+    verifiedProg <- checkSyntax prog >>= \case
+                                          Left err   -> throwException $ SyntaxError err
+                                          Right prog -> return prog
+    code <- parse verifiedProg
+    runProgram code
+  case eResult of
+    Right ok                    -> return ok
+    Left (err :: SomeException) -> putStrLn $ "Got exception: " <> show err

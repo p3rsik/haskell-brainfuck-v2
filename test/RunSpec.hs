@@ -17,15 +17,15 @@ import           Interpreter.Parse     (parse)
 import           Interpreter.Run
 
 -- dummy interrupts
-printC :: Interrupt r a
+printC :: Interrupt r a Identity
 printC ps f = f ps
-writeC :: (Num a, Show a, Ord a) => Word8 -> Interrupt r a
-writeC i ps f = f $ writeCell (fromIntegral i) ps
+writeC :: (Num a, Show a, Ord a) => Word8 -> Interrupt r a Identity
+writeC i ps f = f $ writeCell (chr $ fromIntegral i) ps
 writeC' = writeC 0
 
 shiftCodeToEnd :: Code -> Code
 shiftCodeToEnd c@(Code _ _ End) = c
-shiftCodeToEnd code = shiftCodeToEnd $ shiftRCode code
+shiftCodeToEnd code             = shiftCodeToEnd $ shiftRCode code
 
 spec :: Spec
 spec = describe "Checking Run module with Word8 as a memory cell type" $ do
@@ -74,7 +74,7 @@ spec = describe "Checking Run module with Word8 as a memory cell type" $ do
       let initialCode = parse ","
           initialMem = emptyMemory @Word8
           initialPs = ProgramState (initialMem, initialCode)
-          finalPs = let p = writeCell i initialPs in flip setCode p . shiftRCode $ getCode p
+          finalPs = let p = writeCell (chr $ fromIntegral i) initialPs in flip setCode p . shiftRCode $ getCode p
 
           ps = (`runCont` id) $ run initialPs printC (writeC i)
       ps `shouldBe` finalPs
@@ -94,6 +94,6 @@ spec = describe "Checking Run module with Word8 as a memory cell type" $ do
             initialMem = emptyMemory @Word8
             initialPs = ProgramState (initialMem, initialCode)
             finalPs = let p = change n initialPs in flip setCode p . shiftCodeToEnd $ getCode p
-            ps = execProgram initialCode printC writeC'
+            ps = runIdentity $ execProgram initialCode printC writeC'
         ps `shouldBe` finalPs
 

@@ -6,14 +6,22 @@ module Interpreter
 where
 
 import           Control.Exception         (throwIO)
+import           Control.Monad.Cont        (runContT)
 import           Control.Monad.Free.Church
 import           Data.Char                 (isNumber)
 import           Data.List                 ((!!))
 import           Relude
 import           System.Directory          (listDirectory)
+import           System.IO                 (getChar, putChar)
 
+import           Interpreter.Data          (Code (Code), Command (End),
+                                            ProgramState (ProgramState),
+                                            emptyMemory, getCode)
 import           Interpreter.Language      as L
 import           Interpreter.Parse         as P (parse)
+import           Interpreter.Run           (Interrupt, execProgram,
+                                            execProgramDebug, printCell, run,
+                                            writeCell)
 import           Interpreter.Syntax        as S (checkSyntax)
 
 interpretCommandL :: CommandL a -> IO a
@@ -45,13 +53,37 @@ interpretInterpreterL (SelectProgramL next) = do
   case readMaybe $ toString choice :: Maybe Int of
     Just num -> if num <= length progs
                 then do
-                  let prog = progs !! (num + 1)
+                  let prog = progs !! (num - 1)
                   next . Right <$> readFileText ("progs/" <> prog)
-                else return . next . Left $ FileError "Wrong number!"
+                else return . next . Left $ FileError "No file under this number!"
     Nothing -> return . next . Left $ FileError "It's not a number!"
 
 interpretInterpreterL (RunProgramL code next) = do
-  error "Not Implemented"
+  ps <- execProgram code printI writeI
+  return $ next ()
+  where
+    writeI, printI :: Interrupt (ProgramState Word8) Word8 IO
+    writeI ps ret = do
+      l <- liftIO getChar
+      ret $ writeCell l ps
+    printI ps ret = do
+      let c = printCell ps
+      liftIO $ putChar c
+      ret ps
+
+interpretInterpreterL (DebugProgramL code next) = do
+  execProgramDebug code printI writeI
+  return $ next ()
+  where
+    writeI, printI :: Interrupt (ProgramState Word8) Word8 IO
+    writeI ps ret = do
+      l <- liftIO getChar
+      ret $ writeCell l ps
+    printI ps ret = do
+      let c = printCell ps
+      liftIO $ putChar c
+      ret ps
+
 interpretInterpreterL (ThrowExceptionL exc next) = throwIO exc
 
 
