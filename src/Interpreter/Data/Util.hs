@@ -6,10 +6,13 @@ module Interpreter.Data.Util
   , getCode
   , setMemory
   , setCode
+  , printInterruptIO
+  , writeInterruptIO
   )
 where
 
 import           Relude
+import           System.IO              (getChar, putChar)
 
 import           Interpreter.Data.Types
 import           Interpreter.Util
@@ -46,3 +49,12 @@ setMemory mem = ProgramState . (mem,) . snd . getProgramState
 
 setCode :: Code -> ProgramState a -> ProgramState a
 setCode code = ProgramState . (,code) . fst . getProgramState
+
+printInterruptIO :: PrintInterrupt (ProgramState a) IO a
+printInterruptIO ch ret = do
+  liftIO $ putChar ch
+  ret ()
+writeInterruptIO :: WriteInterrupt (ProgramState a) IO a
+writeInterruptIO ret = do
+  l <- liftIO getChar
+  ret l

@@ -4,7 +4,6 @@ module Interpreter.Run
   , change
   , printCell
   , writeCell
-  , Interrupt
   , execProgram
   , execProgramDebug
   )
@@ -58,24 +57,20 @@ printCell (getMemory -> Memory {..}) = chr $ fromIntegral current
 writeCell :: (Num a, Show a, Ord a) => Char -> ProgramState a -> ProgramState a
 writeCell a ps = flip setMemory ps $ let Memory {..} = getMemory ps in Memory {current = fromIntegral $ ord a, ..}
 
-type Interrupt r a m = ProgramState a -- ^ state of interpreter at the moment of interrupt
-  -> (ProgramState a -> ContT r m (ProgramState a)) -- ^ return continuation
-  -> ContT r m (ProgramState a)
-
 -- step by step interpretation of the program from the given 'ProgramState a'
-run :: (Num a, Ord a, Eq a) => ProgramState a
-  -> Interrupt r a m -- ^ Print interrupt
-  -> Interrupt r a m -- ^ Write interrupt
+run :: (Num a, Ord a, Eq a, Show a, Integral a) => ProgramState a
+  -> PrintInterrupt r m a
+  -> WriteInterrupt r m a
   -> ContT r m (ProgramState a)
 run ps printI writeI = let code = getCode ps in
   case currentInstruction code of
     MoveCell n   -> return . execInstruction ps $ move (fromIntegral n)
     ChangeCell n -> return . execInstruction ps $ change (fromIntegral n)
     PrintCell    -> do
-      ps' <- callCC $ \ret -> printI ps ret
-      return $ shiftRProgram ps'
+      callCC $ \ret -> printI (printCell ps) $ ret . const ps
+      return $ shiftRProgram ps
     WriteCell    -> do
-      ps' <- callCC $ \ret -> writeI ps ret
+      ps' <- callCC $ \ret -> writeI $ ret . flip writeCell ps
       return $ shiftRProgram ps'
     LoopL        -> case current $ getMemory ps of
                       0 -> return . seekLoopR $ shiftRProgram ps
@@ -90,9 +85,9 @@ run ps printI writeI = let code = getCode ps in
     execInstruction :: ProgramState a -> (ProgramState a -> ProgramState a) -> ProgramState a
     execInstruction ps@(getCode -> code) instruction = setCode (shiftRCode code) $ instruction ps
 
-execProgram :: forall a m r. (Num a, Ord a, Eq a, Show a, Monad m) => Code
-  -> Interrupt (ProgramState a) a m -- ^ Print interrupt
-  -> Interrupt (ProgramState a) a m -- ^ Write interrupt
+execProgram :: forall a m r. (Num a, Ord a, Eq a, Show a, Monad m, Integral a) => Code
+  -> PrintInterrupt (ProgramState a) m a
+  -> WriteInterrupt (ProgramState a) m a
   -> m (ProgramState a)
 execProgram code printI writeI = loop $ ProgramState (emptyMemory, code)
   where
@@ -100,9 +95,9 @@ execProgram code printI writeI = loop $ ProgramState (emptyMemory, code)
     loop ps@(getCode -> Code _ _ End) = return ps
     loop ps                           = (`runContT` loop) (run ps printI writeI)
 
-execProgramDebug :: forall a m r. (Num a, Ord a, Eq a, Show a, MonadIO m) => Code
-  -> Interrupt (ProgramState a) a m -- ^ Print interrupt
-  -> Interrupt (ProgramState a) a m -- ^ Write interrupt
+execProgramDebug :: forall a m r. (Num a, Ord a, Eq a, Show a, Integral a, MonadIO m) => Code
+  -> PrintInterrupt (ProgramState a) m a
+  -> WriteInterrupt (ProgramState a) m a
   -> m (ProgramState a)
 execProgramDebug code printI writeI = loop $ ProgramState (emptyMemory, code)
   where

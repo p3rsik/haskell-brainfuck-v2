@@ -6,10 +6,13 @@ module Interpreter.Data.Types
   , Command (..)
   , Code (..)
   , InterpreterError (..)
+  , PrintInterrupt
+  , WriteInterrupt
   )
 where
 
-import           GHC.Show (Show (show))
+import           Control.Monad.Cont (ContT)
+import           GHC.Show           (Show (show))
 import           Relude
 
 
@@ -55,3 +58,10 @@ data InterpreterError =
   deriving (Show, Eq, Generic, Exception)
 
 data SyntaxError = NotMatchingBrackets deriving (Show, Eq)
+
+type PrintInterrupt r m a = Char  -- ^ a Char to print
+  -> (() -> ContT r m (ProgramState a)) -- ^ return continuation
+  -> ContT r m (ProgramState a)
+
+type WriteInterrupt r m a = (Char -> ContT r m (ProgramState a)) -- ^ return continuation
+  -> ContT r m (ProgramState a)

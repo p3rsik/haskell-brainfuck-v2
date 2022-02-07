@@ -14,12 +14,12 @@ import           System.IO                 (getChar, putChar)
 import           Interpreter.Data          (Code (Code), Command (End),
                                             InterpreterError (..),
                                             ProgramState (ProgramState),
-                                            emptyMemory, getCode)
+                                            emptyMemory, getCode,
+                                            printInterruptIO, writeInterruptIO)
 import           Interpreter.Lang.Language
 import           Interpreter.Parse         as P (parse)
-import           Interpreter.Run           (Interrupt, execProgram,
-                                            execProgramDebug, printCell, run,
-                                            writeCell)
+import           Interpreter.Run           (execProgram, execProgramDebug,
+                                            printCell, run, writeCell)
 import           Interpreter.Syntax        as S (checkSyntax)
 
 interpretInterpreterL :: InterpreterL a -> IO a
@@ -49,30 +49,12 @@ interpretInterpreterL (SelectProgramL next) = do
     Nothing -> return . next . Left $ FileError "It's not a number!"
 
 interpretInterpreterL (RunProgramL code next) = do
-  ps <- execProgram code printI writeI
+  ps <- execProgram code printInterruptIO writeInterruptIO
   return $ next ()
-  where
-    writeI, printI :: Interrupt (ProgramState Word8) Word8 IO
-    writeI ps ret = do
-      l <- liftIO getChar
-      ret $ writeCell l ps
-    printI ps ret = do
-      let c = printCell ps
-      liftIO $ putChar c
-      ret ps
 
 interpretInterpreterL (DebugProgramL code next) = do
-  execProgramDebug code printI writeI
+  execProgramDebug code printInterruptIO writeInterruptIO
   return $ next ()
-  where
-    writeI, printI :: Interrupt (ProgramState Word8) Word8 IO
-    writeI ps ret = do
-      l <- liftIO getChar
-      ret $ writeCell l ps
-    printI ps ret = do
-      let c = printCell ps
-      liftIO $ putChar c
-      ret ps
 
 interpretInterpreterL (ThrowExceptionL exc next) = throwIO exc
 

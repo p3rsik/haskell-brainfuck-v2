@@ -10,18 +10,19 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import           Interpreter.Data      (Code (..), Command (..),
-                                        ProgramState (..), emptyMemory, getCode,
-                                        setCode, shiftRCode)
+import           Interpreter.Data      (Code (..), Command (..), PrintInterrupt,
+                                        ProgramState (..), WriteInterrupt,
+                                        emptyMemory, getCode, setCode,
+                                        shiftRCode)
 import           Interpreter.Parse     (parse)
 import           Interpreter.Run
 
 -- dummy interrupts
-printC :: Interrupt r a Identity
-printC ps f = f ps
-writeC :: (Num a, Show a, Ord a) => Word8 -> Interrupt r a Identity
-writeC i ps f = f $ writeCell (chr $ fromIntegral i) ps
-writeC' = writeC 0
+printC :: PrintInterrupt r Identity a
+printC _ f = f ()
+writeC :: (Num a, Show a, Ord a) => Char -> WriteInterrupt r Identity a
+writeC i f = f i
+writeC' = writeC 'a'
 
 shiftCodeToEnd :: Code -> Code
 shiftCodeToEnd c@(Code _ _ End) = c
@@ -74,7 +75,7 @@ spec = describe "Checking Run module with Word8 as a memory cell type" $ do
       let initialCode = parse ","
           initialMem = emptyMemory @Word8
           initialPs = ProgramState (initialMem, initialCode)
-          finalPs = let p = writeCell (chr $ fromIntegral i) initialPs in flip setCode p . shiftRCode $ getCode p
+          finalPs = let p = writeCell i initialPs in flip setCode p . shiftRCode $ getCode p
 
           ps = (`runCont` id) $ run initialPs printC (writeC i)
       ps `shouldBe` finalPs
