@@ -2,9 +2,9 @@ name:                brainfuck-haskell-v2
 version:             0.1.0.0
 github:              "githubuser/brainfuck-haskell-v2"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+author:              "persik"
+maintainer:          "yroslav541@gmail.com"
+copyright:           "2022 persik"
 
 extra-source-files:
 - README.md

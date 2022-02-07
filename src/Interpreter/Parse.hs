@@ -6,7 +6,7 @@ where
 import           Relude
 
 import qualified Data.Text        as T
-import           Interpreter.Data (Code(..), Command (..))
+import           Interpreter.Data (Code (..), Command (..))
 
 parse :: Text -> Code
 parse = toCode . catMaybes . T.foldr (\el acc -> convert el : acc) []
@@ -24,4 +24,4 @@ parse = toCode . catMaybes . T.foldr (\el acc -> convert el : acc) []
 
     toCode :: [Command] -> Code
     toCode (x:xs) = Code (xs <> [End]) [] x
-    toCode _ = Code [] [] End
+    toCode _      = Code [] [] End
