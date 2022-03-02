@@ -12,7 +12,7 @@ jobs:
     name: Build Brainfuck Interpreter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: haskell/actions/setup@v1
         name: Setup Haskell Stack
