@@ -24,8 +24,8 @@ move n s@(getMemory -> mem) = flip setMemory s $ move' n mem
     move' 0 mem = mem
     move' i Memory {..} =
       if i < 0
-        then move' (i + 1) $ Memory (current : left) (unsafeTail right) (unsafeHead right)
-        else move' (i - 1) $ Memory (unsafeTail left) (current : right) (unsafeHead left)
+        then move' (i + 1) $ Memory (Mem $ current : unMem left) (unsafeTail right) (unsafeHead right)
+        else move' (i - 1) $ Memory (unsafeTail left) (Mem $ current : unMem right) (unsafeHead left)
 
 -- Changes current selected memory cell by 'Int'
 -- e.g. if 'Int' is -2, then 2 will be substructed from current cell
@@ -107,7 +107,7 @@ execProgram ::
   PrintInterrupt (ProgramState a) m a ->
   WriteInterrupt (ProgramState a) m a ->
   m (ProgramState a)
-execProgram code printI writeI = loop $ ProgramState (emptyMemory, code)
+execProgram code printI writeI = loop $ ProgramState { getMemory = emptyMemory, getCode = code }
   where
     loop :: ProgramState a -> m (ProgramState a)
     loop ps@(getCode -> Code _ _ End) = return ps
@@ -121,7 +121,7 @@ execProgramDebug ::
   PrintInterrupt (ProgramState a) m a ->
   WriteInterrupt (ProgramState a) m a ->
   m (ProgramState a)
-execProgramDebug code printI writeI = loop $ ProgramState (emptyMemory, code)
+execProgramDebug code printI writeI = loop $ ProgramState { getMemory = emptyMemory, getCode = code }
   where
     loop :: ProgramState a -> m (ProgramState a)
     loop ps@(getCode -> Code _ _ End) = return ps

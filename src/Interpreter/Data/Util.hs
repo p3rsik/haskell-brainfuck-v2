@@ -2,12 +2,10 @@ module Interpreter.Data.Util
   ( shiftRCode,
     shiftLCode,
     emptyMemory,
-    getMemory,
-    getCode,
-    setMemory,
-    setCode,
     printInterruptIO,
     writeInterruptIO,
+    setMemory,
+    setCode,
   )
 where
 
@@ -21,32 +19,20 @@ import           System.IO              (getChar, putChar)
 -- to work with them
 shiftRCode :: Code -> Code
 shiftRCode c@(Code _ _ End) = c
-shiftRCode Code {..} = Code (unsafeTail toExec) (currentInstruction : executed) (unsafeHead toExec)
+shiftRCode Code {..} = Code (unsafeTail toExec) (Commands $ currentInstruction : unCommands executed) (unsafeHead toExec)
 
 -- Shifts code tape by one instruction to the left(e.g. backwards execution)
 -- unsafe versions of head and tail used here because this function is carefully constructed
 -- to work with them
 shiftLCode :: Code -> Code
-shiftLCode c@(Code [] _ _) = c
-shiftLCode Code {..} = Code (currentInstruction : toExec) (unsafeTail executed) (unsafeHead executed)
+shiftLCode c@(Code (Commands []) _ _) = c
+shiftLCode Code {..} = Code (Commands $ currentInstruction : unCommands toExec) (unsafeTail executed) (unsafeHead executed)
 
 -- Initial empty memory
 emptyMemory :: MemoryConstraint a => Memory a
-emptyMemory = Memory {left = zeroes, current = 0, right = zeroes}
+emptyMemory = Memory {left = Mem zeroes, current = 0, right = Mem zeroes}
   where
     zeroes = 0 : zeroes
-
-getMemory :: ProgramState a -> Memory a
-getMemory = fst . getProgramState
-
-getCode :: ProgramState a -> Code
-getCode = snd . getProgramState
-
-setMemory :: Memory a -> ProgramState a -> ProgramState a
-setMemory mem = ProgramState . (mem,) . snd . getProgramState
-
-setCode :: Code -> ProgramState a -> ProgramState a
-setCode code = ProgramState . (,code) . fst . getProgramState
 
 -- Default interrupt used for printing
 printInterruptIO :: PrintInterrupt (ProgramState a) IO a
@@ -59,3 +45,9 @@ writeInterruptIO :: WriteInterrupt (ProgramState a) IO a
 writeInterruptIO ret = do
   l <- liftIO getChar
   ret l
+
+setMemory :: Memory a -> ProgramState a -> ProgramState a
+setMemory mem ProgramState {..} = let getMemory = mem in ProgramState {..}
+
+setCode :: Code -> ProgramState a -> ProgramState a
+setCode code ProgramState {..} = let getCode = code in ProgramState {..}

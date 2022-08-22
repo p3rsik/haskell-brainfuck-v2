@@ -4,7 +4,7 @@ module Interpreter.Parse
 where
 
 import qualified Data.Text        as T
-import           Interpreter.Data (Code (..), Command (..),
+import           Interpreter.Data (Code (..), Command (..), Commands (..),
                                    ProgramVerified (..))
 import           Relude
 
@@ -26,5 +26,5 @@ parse = toCode . catMaybes . T.foldr (\el acc -> convert el : acc) [] . unProgra
     convert _   = Nothing
 
     toCode :: [Command] -> Code
-    toCode (x : xs) = Code (xs <> [End]) [] x
-    toCode _        = Code [] [] End
+    toCode (x : xs) = Code (Commands $ xs <> [End]) (Commands []) x
+    toCode _        = Code (Commands []) (Commands []) End
