@@ -1,8 +1,7 @@
 module Interpreter
-  ( module X
+  ( module X,
   )
 where
-
 
 import           Interpreter.Data.Types       as X
 import           Interpreter.Lang.Interpreter as X

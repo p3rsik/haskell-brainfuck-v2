@@ -1,5 +1,5 @@
 module Interpreter.Data
-  ( module X
+  ( module X,
   )
 where
 
