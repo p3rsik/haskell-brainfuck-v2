@@ -3,11 +3,11 @@ module Interpreter.Syntax
   )
 where
 
-import qualified Data.Text        as T
+import qualified Data.Text         as T
 import           Relude
 
-import           Interpreter.Data (ProgramUnverified (..), ProgramVerified (..),
-                                   SyntaxError (..))
+import           Interpreter.Types (ProgramUnverified (..),
+                                    ProgramVerified (..), SyntaxError (..))
 
 -- Checks syntax for the given 'Text'
 checkSyntax :: ProgramUnverified -> Either SyntaxError ProgramVerified

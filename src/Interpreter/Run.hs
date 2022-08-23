@@ -10,7 +10,7 @@ module Interpreter.Run
 where
 
 import           Control.Monad.Cont
-import           Interpreter.Data
+import           Interpreter.Types
 import           Interpreter.Util
 import           Prelude            (getLine)
 import           Relude             hiding (getLine)

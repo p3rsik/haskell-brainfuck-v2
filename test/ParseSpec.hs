@@ -8,9 +8,8 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import           Interpreter.Data      (Code (..), Command (..), Commands (..),
-                                        ProgramVerified (..))
 import           Interpreter.Parse
+import           Interpreter.Types
 
 spec :: Spec
 spec = describe "Parse module" $ do

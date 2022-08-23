@@ -10,12 +10,9 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import           Interpreter.Data      (Code (..), Command (..), PrintInterrupt,
-                                        ProgramState (..), ProgramVerified (..),
-                                        WriteInterrupt, emptyMemory, getCode,
-                                        setCode, shiftRCode)
 import           Interpreter.Parse     (parse)
 import           Interpreter.Run
+import           Interpreter.Types
 
 -- dummy interrupts
 printC :: PrintInterrupt r Identity a

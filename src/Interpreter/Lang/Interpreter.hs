@@ -7,17 +7,17 @@ import           Control.Exception         (throwIO)
 import           Control.Monad.Free.Church (foldF)
 import           Data.Char                 (isNumber)
 import           Data.List                 ((!!))
-import           Interpreter.Data          (Code (Code), Command (End),
-                                            InterpreterError (..),
-                                            ProgramState (ProgramState),
-                                            ProgramUnverified (..), emptyMemory,
-                                            getCode, printInterruptIO,
-                                            writeInterruptIO)
 import           Interpreter.Lang.Language
 import           Interpreter.Parse         as P (parse)
 import           Interpreter.Run           (execProgram, execProgramDebug,
                                             printCell, run, writeCell)
 import           Interpreter.Syntax        as S (checkSyntax)
+import           Interpreter.Types         (Code (Code), Command (End),
+                                            InterpreterError (..),
+                                            ProgramState (ProgramState),
+                                            ProgramUnverified (..), emptyMemory,
+                                            getCode, printInterruptIO,
+                                            writeInterruptIO)
 import           Relude
 import           System.Directory          (listDirectory)
 import           System.IO                 (getChar, putChar)

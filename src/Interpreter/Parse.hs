@@ -3,9 +3,9 @@ module Interpreter.Parse
   )
 where
 
-import qualified Data.Text        as T
-import           Interpreter.Data (Code (..), Command (..), Commands (..),
-                                   ProgramVerified (..))
+import qualified Data.Text         as T
+import           Interpreter.Types (Code (..), Command (..), Commands (..),
+                                    ProgramVerified (..))
 import           Relude
 
 -- Parses given 'Text' into a 'Code'

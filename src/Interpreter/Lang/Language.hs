@@ -12,7 +12,7 @@ module Interpreter.Lang.Language
 where
 
 import           Control.Monad.Free.Church
-import           Interpreter.Data          (Code, InterpreterError,
+import           Interpreter.Types         (Code, InterpreterError,
                                             ProgramUnverified (..),
                                             ProgramVerified (..), SyntaxError)
 import           Relude

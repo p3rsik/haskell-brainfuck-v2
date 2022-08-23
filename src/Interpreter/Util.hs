@@ -6,8 +6,9 @@ module Interpreter.Util
   )
 where
 
-import           GHC.Float              (expts10)
-import           Interpreter.Data.Types (Command, Commands (..), Mem (..))
+import           GHC.Float                (expts10)
+import           Interpreter.Types.Code
+import           Interpreter.Types.Memory
 import           Relude
 
 -- | Class to generalize unsafe versions of head and tail on infinite lists.

@@ -1,4 +1,4 @@
-module Interpreter.Data.Util
+module Interpreter.Types.Util
   ( shiftRCode,
     shiftLCode,
     emptyMemory,
@@ -9,10 +9,13 @@ module Interpreter.Data.Util
   )
 where
 
-import           Interpreter.Data.Types
+import           Interpreter.Types.Code
+import           Interpreter.Types.Memory
+import           Interpreter.Types.ProgramState
+import           Interpreter.Types.Types
 import           Interpreter.Util
 import           Relude
-import           System.IO              (getChar, putChar)
+import           System.IO                      (getChar, putChar)
 
 -- Shifts code tape by one instruction to the right(e.g. forward execution)
 -- unsafe versions of head and tail used here because this function is carefully constructed

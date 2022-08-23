@@ -26,14 +26,18 @@ source-repository head
 library
   exposed-modules:
       Interpreter
-      Interpreter.Data
-      Interpreter.Data.Types
-      Interpreter.Data.Util
       Interpreter.Lang.Interpreter
       Interpreter.Lang.Language
       Interpreter.Parse
       Interpreter.Run
       Interpreter.Syntax
+      Interpreter.Types
+      Interpreter.Types.Code
+      Interpreter.Types.Error
+      Interpreter.Types.Memory
+      Interpreter.Types.ProgramState
+      Interpreter.Types.Types
+      Interpreter.Types.Util
       Interpreter.Util
   other-modules:
       Paths_brainfuck_haskell_v2
