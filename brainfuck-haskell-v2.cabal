@@ -34,11 +34,12 @@ library
       Interpreter.Types
       Interpreter.Types.Code
       Interpreter.Types.Error
+      Interpreter.Types.Internal
       Interpreter.Types.Memory
+      Interpreter.Types.Program
       Interpreter.Types.ProgramState
       Interpreter.Types.Types
       Interpreter.Types.Util
-      Interpreter.Util
   other-modules:
       Paths_brainfuck_haskell_v2
   hs-source-dirs:

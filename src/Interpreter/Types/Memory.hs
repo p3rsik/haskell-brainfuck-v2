@@ -1,33 +1,31 @@
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Interpreter.Types.Memory
-  ( Mem (..),
-    Memory (..),
-    MemoryConstraint (..),
+  ( Memory (..),
+    ProgramMemory (..),
+    emptyMemory,
   ) where
 
-import           GHC.Show (Show (show))
+import           Interpreter.Types.Internal
 import           Relude
 
 -- | Newtype wrapper for memory part
-newtype Mem a = Mem { unMem :: [a] }
-
-instance (Show a) => Show (Mem a) where
-  show Mem {..} = "..." <> Relude.show (take 10 unMem) <> "..."
-
-instance (Eq a) => Eq (Mem a) where
-  mem1 == mem2 = take 100 (unMem mem1) == take 100 (unMem mem2)
+newtype Memory a = Memory { unMem :: [a] } deriving (Eq, Show)
 
 -- | Memory cells represented as an infinite tape.
-data Memory a = MemoryConstraint a => Memory {left, right :: Mem a, current :: !a}
+data ProgramMemory a = ProgramMemory {left, right :: Memory a, current :: !a} deriving (Eq, Show)
 
-instance Show (Memory a) where
-  show Memory {..} = "..." <> Relude.show left <> Relude.show current <> Relude.show right <> "..."
+-- Initial empty memory
+emptyMemory :: (Show a, Eq a, Num a) => ProgramMemory a
+emptyMemory = ProgramMemory {left = Memory zeroes, current = 0, right = Memory zeroes}
+  where
+    zeroes = 0 : zeroes
 
-instance Eq a => Eq (Memory a) where
-  mem1 == mem2 = l1 == l2 && r1 == r2 && current mem1 == current mem2
-    where
-      l1 = left mem1
-      r1 = right mem1
-      l2 = left mem2
-      r2 = right mem2
 
-type MemoryConstraint a = (Eq a, Num a, Show a, Ord a)
+instance InfiniteList (Memory a) a where
+  unsafeHead (Memory (x : _)) = x
+  unsafeHead (Memory [])      = error "Will never reach here"
+
+  unsafeTail (Memory (_ : xs)) = Memory xs
+  unsafeTail (Memory [])       = error "Will never reach here"

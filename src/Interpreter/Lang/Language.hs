@@ -12,18 +12,16 @@ module Interpreter.Lang.Language
 where
 
 import           Control.Monad.Free.Church
-import           Interpreter.Types         (Code, InterpreterError,
-                                            ProgramUnverified (..),
-                                            ProgramVerified (..), SyntaxError)
+import           Interpreter.Types
 import           Relude
 
 data InterpreterL next where
   PrintGreetingsL :: (() -> next) -> InterpreterL next
-  CheckSyntaxL :: ProgramUnverified -> (Either SyntaxError ProgramVerified -> next) -> InterpreterL next
-  ParseL :: ProgramVerified -> (Code -> next) -> InterpreterL next
-  RunProgramL :: Code -> (() -> next) -> InterpreterL next -- interpret program
-  DebugProgramL :: Code -> (() -> next) -> InterpreterL next -- step-by-step execution for debug purpouses
-  SelectProgramL :: (Either InterpreterError ProgramUnverified -> next) -> InterpreterL next -- select program
+  CheckSyntaxL :: UnverifiedProgram -> (Either SyntaxError VerifiedProgram -> next) -> InterpreterL next
+  ParseL :: VerifiedProgram -> (ProgramCode -> next) -> InterpreterL next
+  RunProgramL :: ProgramCode -> (() -> next) -> InterpreterL next -- interpret program
+  DebugProgramL :: ProgramCode -> (() -> next) -> InterpreterL next -- step-by-step execution for debug purpouses
+  SelectProgramL :: (Either InterpreterError UnverifiedProgram -> next) -> InterpreterL next -- select program
   ThrowExceptionL :: forall a e next. Exception e => e -> (a -> next) -> InterpreterL next -- throw exception from inside the interpreter
 
 instance Functor InterpreterL where
@@ -40,19 +38,19 @@ type Interpreter a = F InterpreterL a
 printGreetings :: Interpreter ()
 printGreetings = liftF $ PrintGreetingsL id
 
-checkSyntax :: ProgramUnverified -> Interpreter (Either SyntaxError ProgramVerified)
+checkSyntax :: UnverifiedProgram -> Interpreter (Either SyntaxError VerifiedProgram)
 checkSyntax code = liftF $ CheckSyntaxL code id
 
-parse :: ProgramVerified -> Interpreter Code
+parse :: VerifiedProgram -> Interpreter ProgramCode
 parse code = liftF $ ParseL code id
 
-runProgram :: Code -> Interpreter ()
+runProgram :: ProgramCode -> Interpreter ()
 runProgram code = liftF $ RunProgramL code id
 
-debugProgram :: Code -> Interpreter ()
+debugProgram :: ProgramCode -> Interpreter ()
 debugProgram code = liftF $ DebugProgramL code id
 
-selectProgram :: Interpreter (Either InterpreterError ProgramUnverified)
+selectProgram :: Interpreter (Either InterpreterError UnverifiedProgram)
 selectProgram = liftF $ SelectProgramL id
 
 throwException :: forall a e. Exception e => e -> Interpreter a

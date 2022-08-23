@@ -12,12 +12,7 @@ import           Interpreter.Parse         as P (parse)
 import           Interpreter.Run           (execProgram, execProgramDebug,
                                             printCell, run, writeCell)
 import           Interpreter.Syntax        as S (checkSyntax)
-import           Interpreter.Types         (Code (Code), Command (End),
-                                            InterpreterError (..),
-                                            ProgramState (ProgramState),
-                                            ProgramUnverified (..), emptyMemory,
-                                            getCode, printInterruptIO,
-                                            writeInterruptIO)
+import           Interpreter.Types
 import           Relude
 import           System.Directory          (listDirectory)
 import           System.IO                 (getChar, putChar)
@@ -44,7 +39,7 @@ interpretInterpreterL (SelectProgramL next) = do
       if num <= length progs
         then do
           let prog = progs !! (num - 1)
-          next . Right . ProgramUnverified <$> readFileText ("progs/" <> prog)
+          next . Right . UnverifiedProgram <$> readFileText ("progs/" <> prog)
         else return . next . Left $ FileError "No file under this number!"
     Nothing -> return . next . Left $ FileError "It's not a number!"
 interpretInterpreterL (RunProgramL code next) = do

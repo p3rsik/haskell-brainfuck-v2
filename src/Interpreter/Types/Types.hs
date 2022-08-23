@@ -1,8 +1,6 @@
 module Interpreter.Types.Types
   ( PrintInterrupt,
     WriteInterrupt,
-    ProgramUnverified (..),
-    ProgramVerified (..),
   )
 where
 
@@ -25,9 +23,3 @@ type WriteInterrupt r m a =
   -- | return continuation
   (Char -> ContT r m (ProgramState a)) ->
   ContT r m (ProgramState a)
-
--- | Newtype wrapper to encode the fact, that program is unverified(e.g. syntax was not checked)
-newtype ProgramUnverified = ProgramUnverified { unProgramUnverified :: Text } deriving (Eq, Show)
-
--- | Newtype wrapper to encode the fact, that program is verified(e.g. syntax was checked)
-newtype ProgramVerified = ProgramVerified { unProgramVerified :: Text } deriving (Eq, Show)

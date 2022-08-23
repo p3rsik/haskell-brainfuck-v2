@@ -14,12 +14,12 @@ import           Interpreter.Types
 spec :: Spec
 spec = describe "Syntax module" $ do
   context "checkSyntax function" $ do
-    let testCasesSuccess = ProgramUnverified <$> [ ""
+    let testCasesSuccess = UnverifiedProgram <$> [ ""
                            , "[[]]"
                            , "+>>[+[-]]>>[]"
                            , "[ [][] ]"
                            ]
-        testCasesFailure = ProgramUnverified <$> [ "["
+        testCasesFailure = UnverifiedProgram <$> [ "["
                            , "[[]"
                            , "[[][]"
                            , "[]]["
@@ -28,7 +28,7 @@ spec = describe "Syntax module" $ do
                            ]
     prop "when provided with correct input"
       . forAll (elements testCasesSuccess)
-      $ \c -> checkSyntax c`shouldBe` Right (ProgramVerified $ unProgramUnverified c)
+      $ \c -> checkSyntax c`shouldBe` Right (VerifiedProgram $ unUnverifiedProgram c)
 
     prop "when provided with incorrect input"
       . forAll (elements testCasesFailure)

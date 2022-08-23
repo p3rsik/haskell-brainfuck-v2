@@ -6,13 +6,12 @@ where
 import qualified Data.Text         as T
 import           Relude
 
-import           Interpreter.Types (ProgramUnverified (..),
-                                    ProgramVerified (..), SyntaxError (..))
+import           Interpreter.Types
 
 -- Checks syntax for the given 'Text'
-checkSyntax :: ProgramUnverified -> Either SyntaxError ProgramVerified
-checkSyntax (ProgramUnverified code) =
-  bool (Left NotMatchingBrackets) (Right $ ProgramVerified code)
+checkSyntax :: UnverifiedProgram -> Either SyntaxError VerifiedProgram
+checkSyntax (UnverifiedProgram code) =
+  bool (Left NotMatchingBrackets) (Right $ VerifiedProgram code)
   . (== Just 0) -- if acc is 0 then every '[' has closing ']'
   . T.foldl (\accM c -> do
                 acc <- accM
