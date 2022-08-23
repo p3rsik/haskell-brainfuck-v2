@@ -8,18 +8,19 @@ import           Test.Hspec
 import           Test.Hspec.QuickCheck
 import           Test.QuickCheck
 
-import           Interpreter.Data      (SyntaxError (..))
+import           Interpreter.Data      (ProgramUnverified (..),
+                                        ProgramVerified (..), SyntaxError (..))
 import           Interpreter.Syntax    (checkSyntax)
 
 spec :: Spec
 spec = describe "Syntax module" $ do
   context "checkSyntax function" $ do
-    let testCasesSuccess = [ ""
+    let testCasesSuccess = ProgramUnverified <$> [ ""
                            , "[[]]"
                            , "+>>[+[-]]>>[]"
                            , "[ [][] ]"
                            ]
-        testCasesFailure = [ "["
+        testCasesFailure = ProgramUnverified <$> [ "["
                            , "[[]"
                            , "[[][]"
                            , "[]]["
@@ -28,7 +29,7 @@ spec = describe "Syntax module" $ do
                            ]
     prop "when provided with correct input"
       . forAll (elements testCasesSuccess)
-      $ \c -> checkSyntax c `shouldBe` Right c
+      $ \c -> checkSyntax c`shouldBe` Right (ProgramVerified $ unProgramUnverified c)
 
     prop "when provided with incorrect input"
       . forAll (elements testCasesFailure)
