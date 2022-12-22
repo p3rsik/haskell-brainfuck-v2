@@ -21,7 +21,7 @@ jobs:
           enable-stack: true
           stack-version: 'latest'
 
-      - uses: actions/cache@v3.0.8
+      - uses: actions/cache@v3.2.0
         name: Cache ~/.stack
         with:
           path: ~/.stack
